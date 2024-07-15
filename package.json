@@ -1,15 +1,11 @@
 {
-  "name": "acmp",
+  "name": "acmp-js",
   "version": "0.1.0",
   "description": "acmp typescript reference implementation",
-  "main": "index.ts",
-  "directories": {
-    "lib": "lib"
-  },
   "scripts": {
     "test": "tsx --test"
   },
-  "author": "",
+  "author": "crestfalln",
   "license": "MIT",
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.22.2",

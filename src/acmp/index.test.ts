@@ -5,6 +5,7 @@ import { ACESS, ECDHWalletExtension } from 'acess-js'
 import { AccountAddress, Network, Aptos, AptosConfig, Account, AnyRawTransaction, Ed25519Account, Ed25519PrivateKey } from "@aptos-labs/ts-sdk";
 import { SimpleMessage } from "../message";
 import assert from "node:assert";
+import { env } from "node:process";
 
 let initCalled: boolean = false
 let sender: Ed25519Account
@@ -20,16 +21,35 @@ async function init() {
         return
     }
     initCalled = true
+    const coins = Account.fromPrivateKey({
+        privateKey: new Ed25519PrivateKey(env["PKEY"] as string)
+    })
     sender = Account.generate()
+    console.log(sender.privateKey.toString())
     reciever = Account.generate()
+    console.log(reciever.privateKey.toString())
     const aptosConfig = new AptosConfig({ network: Network.TESTNET })
     aptos = new Aptos(aptosConfig)
-    try {
-        await aptos.fundAccount({ accountAddress: sender.accountAddress.toString(), amount: 1000000 })
-    } catch {}
-    try {
-        await aptos.fundAccount({ accountAddress: reciever.accountAddress.toString(), amount: 1000000 })
-    } catch {}
+    const txn1 = await aptos.signAndSubmitTransaction({
+        signer: coins, transaction: await aptos.transaction.build.simple({
+            sender: coins.accountAddress,
+            data: {
+                function: "0x1::aptos_account::transfer",
+                functionArguments: [sender.accountAddress, 50000000]
+            }
+        })
+    })
+    await aptos.waitForTransaction({transactionHash: txn1.hash})
+    const txn2 = await aptos.signAndSubmitTransaction({
+        signer: coins, transaction: await aptos.transaction.build.simple({
+            sender: coins.accountAddress,
+            data: {
+                function: "0x1::aptos_account::transfer",
+                functionArguments: [reciever.accountAddress, 50000000]
+            }
+        })
+    })
+    await aptos.waitForTransaction({transactionHash: txn2.hash})
     const senderkeys = await createKeys(sender)
     const recieverkeys = await createKeys(reciever)
     senderEnc = senderkeys.encryptor
@@ -86,9 +106,9 @@ test("send message", async () => {
             aptos as Aptos,
         ),
         signer: {
-            accountAddress: reciever.accountAddress,
+            accountAddress: sender.accountAddress,
             signTransaction: async (txn: AnyRawTransaction) => {
-                return reciever.signTransactionWithAuthenticator(txn)
+                return sender.signTransactionWithAuthenticator(txn)
             },
 
         },

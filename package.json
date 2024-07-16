@@ -1,21 +1,29 @@
 {
   "name": "acmp-js",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "acmp typescript reference implementation",
   "scripts": {
-    "test": "tsx --test"
+    "test": "tsx --test",
+    "build": "tsup"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "author": "crestfalln",
   "license": "MIT",
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.22.2",
-    "acess-js": "^0.5.0",
-    "web3-utils": "^4.3.1",
-    "acksp-js": "^0.2.0"
+    "acess-js": "^0.5.1",
+    "acksp-js": "^0.2.1",
+    "web3-utils": "^4.3.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
     "ts-node": "^10.9.2",
+    "tsup": "^8.1.0",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3"
   }
